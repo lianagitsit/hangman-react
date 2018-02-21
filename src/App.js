@@ -26,7 +26,9 @@ class Game extends Component {
       letters: [],
       isGameOn: false,
       guessesRemaining: 10,
-      blanks: []
+      blanks: [],
+      wins: 0,
+      didWin: false
     };
   }
 
@@ -38,6 +40,8 @@ class Game extends Component {
     var keyInput = e.key.toUpperCase();
     var code = e.keyCode;
     var newStateArray = this.state.letters.slice();
+    var newBlanksState = this.state.blanks.slice();
+    var oldGuessesRemaining = this.state.guessesRemaining;
 
     // is the game isn't already on, initialize the board with any key
     if (!this.state.isGameOn){
@@ -52,7 +56,6 @@ class Game extends Component {
         e.preventDefault();
       } else {
         var pos = this.state.wordInPlay.indexOf(keyInput);
-        var newBlanksState = this.state.blanks.slice();
 
         // if the letter is in the word, replace each matching blank
         while (pos !== -1){
@@ -61,11 +64,14 @@ class Game extends Component {
         }
 
 
-        // handle letters already guessed and losing guesses
+        // handle letters already guessed and initial losing guesses
         if (newStateArray.indexOf(keyInput) !== -1 || newBlanksState.indexOf(keyInput) !== -1){
           e.preventDefault();
         } else {
           newStateArray.push(keyInput);
+          this.setState((prevState) => ({
+            guessesRemaining: oldGuessesRemaining - 1
+          }))
         }
 
 
@@ -74,7 +80,27 @@ class Game extends Component {
           letters: newStateArray,
           blanks: newBlanksState
         })
+
+        this.checkForWin();
       }
+    }
+  }
+
+  checkForWin() {
+    // if the word is guessed correctly, display it at the top and play music
+    // then automatically reinitialize with a new word
+    var finalWord = this.state.blanks.join("");
+    console.log(finalWord);
+
+    if (finalWord === this.state.wordInPlay){
+      console.log("win!");
+      this.setState((prevState) => ({
+        wins: prevState.wins + 1
+      }))
+
+      this.setState({
+        didWin: true
+      })
     }
   }
 
@@ -89,21 +115,25 @@ class Game extends Component {
 
     this.setState({
       wordInPlay: currentWord,
-      blanks: blanksArray
+      blanks: blanksArray,
+      didWin: false
     })
   }
 
   render(){
     var gameOnString = (<h2>Game on!</h2>);
-    // var gameOffString = (<h2>Game off!</h2>);
     var gameStatus = this.state.isGameOn ? gameOnString : false;
+
+    var winCount = this.state.wins;
+    var userWin = this.state.didWin ? winCount : false;
 
     return(
       <div>
-        <p>Last key: {this.state.key}</p>
-        <p>Log: {this.state.letters}</p>
+        <p>Wins: {userWin}</p>
+        <p>Letters already guessed: {this.state.letters}</p>
         <p>Current word: {this.state.wordInPlay}</p>
         <p>{this.state.blanks}</p>
+        <p>Guesses Remaining: {this.state.guessesRemaining}</p>
         {gameStatus}
       </div>
     );
