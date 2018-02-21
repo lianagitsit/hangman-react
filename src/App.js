@@ -43,21 +43,32 @@ class Game extends Component {
         isGameOn: true
       });
       this.getCurrentWord();
-    }
-    if (code < 65 || code > 90){
-      e.preventDefault();
     } else {
-      newStateArray.push(keyInput);
-      this.setState({
-        key: keyInput,
-        letters: newStateArray
-      })
+      if (code < 65 || code > 90){
+        e.preventDefault();
+      } else {
+        var pos = this.state.wordInPlay.indexOf(keyInput);
+        var newBlanksState = this.state.blanks.slice();
+        // check if the letter is in the word
+        while (pos !== -1){
+          newBlanksState[pos] = keyInput;
+          pos = this.state.wordInPlay.indexOf(keyInput, pos + 1);
+        }
+
+        // sets guessed letters
+        newStateArray.push(keyInput);
+        this.setState({
+          key: keyInput,
+          letters: newStateArray,
+          blanks: newBlanksState
+        })
+      }
     }
   }
 
   getCurrentWord(){
     var words = ["banana", "dog", "madonna", "hello", "symphony", "photosynthesis", "coelomate"];
-    var currentWord = words[Math.floor(Math.random() * words.length)];
+    var currentWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
     var blanksArray = [];
 
     for (var i = 0; i < currentWord.length; i++){
