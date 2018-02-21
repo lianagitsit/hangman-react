@@ -38,25 +38,37 @@ class Game extends Component {
     var keyInput = e.key.toUpperCase();
     var code = e.keyCode;
     var newStateArray = this.state.letters.slice();
+
+    // is the game isn't already on, initialize the board with any key
     if (!this.state.isGameOn){
       this.setState({
         isGameOn: true
       });
       this.getCurrentWord();
+    
+    // if the game is on, ensure the input is a letter
     } else {
       if (code < 65 || code > 90){
         e.preventDefault();
       } else {
         var pos = this.state.wordInPlay.indexOf(keyInput);
         var newBlanksState = this.state.blanks.slice();
-        // check if the letter is in the word
+
+        // if the letter is in the word, replace each matching blank
         while (pos !== -1){
           newBlanksState[pos] = keyInput;
           pos = this.state.wordInPlay.indexOf(keyInput, pos + 1);
         }
 
-        // sets guessed letters
-        newStateArray.push(keyInput);
+
+        // handle letters already guessed and losing guesses
+        if (newStateArray.indexOf(keyInput) !== -1 || newBlanksState.indexOf(keyInput) !== -1){
+          e.preventDefault();
+        } else {
+          newStateArray.push(keyInput);
+        }
+
+
         this.setState({
           key: keyInput,
           letters: newStateArray,
