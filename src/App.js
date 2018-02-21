@@ -87,13 +87,9 @@ class Game extends Component {
   }
 
   checkForWin() {
-    // if the word is guessed correctly, display it at the top and play music
-    // then automatically reinitialize with a new word
     var finalWord = this.state.blanks.join("");
-    console.log(finalWord);
 
     if (finalWord === this.state.wordInPlay){
-      console.log("win!");
       this.setState((prevState) => ({
         wins: prevState.wins + 1
       }))
@@ -124,11 +120,24 @@ class Game extends Component {
     var gameOnString = (<h2>Game on!</h2>);
     var gameStatus = this.state.isGameOn ? gameOnString : false;
 
+    // if the word is guessed correctly, display it at the top and play music
+    // then automatically reinitialize with a new word
+    // ... and make the message disappear and the music stop on beginning the new game
+
     var winCount = this.state.wins;
     var userWin = this.state.didWin ? winCount : false;
 
     return(
       <div>
+        {this.state.didWin && (
+          <div>
+            <h2>You won with {this.state.wordInPlay}!</h2>
+            <audio>
+              <source src="glass-clink-2.mp3" type="audio/mpeg"/>
+              Your browser does not support audio.
+            </audio>
+          </div>
+        )}
         <p>Wins: {userWin}</p>
         <p>Letters already guessed: {this.state.letters}</p>
         <p>Current word: {this.state.wordInPlay}</p>
