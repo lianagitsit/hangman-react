@@ -11,7 +11,7 @@ class App extends Component {
           <h1 className="App-title">Welcome to HANGMAN x_x</h1>
         </header>
         <p className="App-intro">
-        Press any key to get started!
+        Press any key to get started! This is a test edit.
         </p>
         <Game />
       </div>
