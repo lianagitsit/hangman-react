@@ -8,7 +8,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to HANGMAN x_x</h1>
+          <h1 className="App-title">Welcome to REACT HANGMAN!</h1>
         </header>
         <Game />
       </div>
@@ -22,7 +22,7 @@ class Game extends Component {
     this.state = {
       letters: [],
       isGameOn: false,
-      guessesRemaining: 10,
+      guessesRemaining: 3,
       blanks: [],
       wins: 0,
       didWin: false
@@ -55,9 +55,10 @@ class Game extends Component {
         var pos = this.state.wordInPlay.indexOf(keyInput);
 
         // toggles the win message once player begins new game
-        if (this.state.didWin){
+        if (this.state.didWin || this.state.didLose){
           this.setState({
-            didWin: false
+            didWin: false,
+            didLose: false
           })
         }
 
@@ -66,7 +67,6 @@ class Game extends Component {
           newBlanksState[pos] = keyInput;
           pos = this.state.wordInPlay.indexOf(keyInput, pos + 1);
         }
-
 
         // handle letters already guessed and initial losing guesses
         if (newStateArray.indexOf(keyInput) !== -1 || newBlanksState.indexOf(keyInput) !== -1){
@@ -78,22 +78,22 @@ class Game extends Component {
           }))
         }
 
-
         this.setState({
           key: keyInput,
           letters: newStateArray,
           blanks: newBlanksState
         })
 
-        this.checkForWin();
+        if (newBlanksState.indexOf("_ ") === -1 || !this.state.guessesRemaining){
+          this.handleWinLose();
+        }
       }
     }
   }
 
-  checkForWin() {
-    var finalWord = this.state.blanks.join("");
-
-    if (finalWord === this.state.wordInPlay){
+  handleWinLose() {
+    // win
+    if (this.state.blanks.indexOf("_ ") === -1){
       this.setState((prevState) => ({
         wins: prevState.wins + 1
       }))
@@ -102,15 +102,26 @@ class Game extends Component {
         didWin: true,
         prevWordInPlay: this.state.wordInPlay
       })
-
-      this.getCurrentWord();
+    
+    // loss
+    } else {
+      this.setState({
+        didLose: true,
+        prevWordInPlay: this.state.wordInPlay
+      })
     }
+
+    // automatically reinitializes the board
+    this.getCurrentWord();
+
   }
 
   getCurrentWord(){
-    var words = ["banana", "dog", "madonna", "hello", "symphony", "photosynthesis", "coelomate"];
+    var words = ["state", "props", "component", "react", "arrow", "lifecycle", "facebook", "node", "render"];
     var currentWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
     var blanksArray = [];
+
+    console.log("The current word is: " + currentWord);
 
     for (var i = 0; i < currentWord.length; i++){
       blanksArray.push("_ ");
@@ -120,45 +131,45 @@ class Game extends Component {
       wordInPlay: currentWord,
       blanks: blanksArray,
       letters: [],
-      guessesRemaining: 10
+      guessesRemaining: 3
     })
   }
 
   render(){
-    // var gameOnString = (<h2>Game on!</h2>);
-    // var gameStatus = this.state.isGameOn ? gameOnString : false;
 
-    // if the word is guessed correctly, display it at the top and play music
-    // then automatically reinitialize with a new word
-    // ... and make the message disappear and the music stop on beginning the new game
+    var winNum = this.state.wins;
+    var winCount = winNum > 0 ? winNum : false;
+    var winLoseMessage = null;
 
-    var winCount = this.state.wins;
-    var userWin = winCount > 0 ? winCount : false;
+    // display win or lose message
+    if (this.state.didLose){
+      winLoseMessage = (<h2>You lose, the word was {this.state.prevWordInPlay}!</h2>);
+    } else {
+      winLoseMessage = this.state.didWin && ( <h2>You won with {this.state.prevWordInPlay}!</h2>)
+      //   <div>
+      //     <h2>You won with {this.state.prevWordInPlay}!</h2>
+      //     {/* <audio>
+      //       <source src="glass-clink-2.mp3" type="audio/mpeg"/>
+      //       Your browser does not support audio.
+      //     </audio> */}
+      //   </div>
+      // );
+    }
 
-    var winMessage = this.state.didWin && (
-      <div>
-        <h2>You won with {this.state.prevWordInPlay}!</h2>
-        <audio>
-          <source src="glass-clink-2.mp3" type="audio/mpeg"/>
-          Your browser does not support audio.
-        </audio>
-      </div>
-    );
-
-    var startMessage = !this.state.isGameOn && (<p className="App-intro">Press any key to get started!</p>);
-
+    var startMessage = !this.state.isGameOn ? (<p className="App-intro">Press any key to get started!</p>) : false;
     var guessCount = this.state.isGameOn ? this.state.guessesRemaining : false;
 
     return(
       <div>
-        {startMessage}
-        {winMessage}
-        <p>Wins: {userWin}</p>
+        <div className="Message-box">
+          {startMessage}
+          {winLoseMessage}
+        </div>
+        <p>Wins: {winCount}</p>
         <p>Letters already guessed: {this.state.letters}</p>
         {/* <p>Current word: {this.state.wordInPlay}</p> */}
         <p>{this.state.blanks}</p>
         <p>Guesses Remaining: {guessCount}</p>
-        {/* {gameStatus} */}
       </div>
     );
   }
