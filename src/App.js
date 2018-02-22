@@ -10,9 +10,6 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to HANGMAN x_x</h1>
         </header>
-        <p className="App-intro">
-        Press any key to get started! This is a test edit.
-        </p>
         <Game />
       </div>
     );
@@ -57,6 +54,13 @@ class Game extends Component {
       } else {
         var pos = this.state.wordInPlay.indexOf(keyInput);
 
+        // toggles the win message once player begins new game
+        if (this.state.didWin){
+          this.setState({
+            didWin: false
+          })
+        }
+
         // if the letter is in the word, replace each matching blank
         while (pos !== -1){
           newBlanksState[pos] = keyInput;
@@ -95,8 +99,11 @@ class Game extends Component {
       }))
 
       this.setState({
-        didWin: true
+        didWin: true,
+        prevWordInPlay: this.state.wordInPlay
       })
+
+      this.getCurrentWord();
     }
   }
 
@@ -112,38 +119,46 @@ class Game extends Component {
     this.setState({
       wordInPlay: currentWord,
       blanks: blanksArray,
-      didWin: false
+      letters: [],
+      guessesRemaining: 10
     })
   }
 
   render(){
-    var gameOnString = (<h2>Game on!</h2>);
-    var gameStatus = this.state.isGameOn ? gameOnString : false;
+    // var gameOnString = (<h2>Game on!</h2>);
+    // var gameStatus = this.state.isGameOn ? gameOnString : false;
 
     // if the word is guessed correctly, display it at the top and play music
     // then automatically reinitialize with a new word
     // ... and make the message disappear and the music stop on beginning the new game
 
     var winCount = this.state.wins;
-    var userWin = this.state.didWin ? winCount : false;
+    var userWin = winCount > 0 ? winCount : false;
+
+    var winMessage = this.state.didWin && (
+      <div>
+        <h2>You won with {this.state.prevWordInPlay}!</h2>
+        <audio>
+          <source src="glass-clink-2.mp3" type="audio/mpeg"/>
+          Your browser does not support audio.
+        </audio>
+      </div>
+    );
+
+    var startMessage = !this.state.isGameOn && (<p className="App-intro">Press any key to get started!</p>);
+
+    var guessCount = this.state.isGameOn ? this.state.guessesRemaining : false;
 
     return(
       <div>
-        {this.state.didWin && (
-          <div>
-            <h2>You won with {this.state.wordInPlay}!</h2>
-            <audio>
-              <source src="glass-clink-2.mp3" type="audio/mpeg"/>
-              Your browser does not support audio.
-            </audio>
-          </div>
-        )}
+        {startMessage}
+        {winMessage}
         <p>Wins: {userWin}</p>
         <p>Letters already guessed: {this.state.letters}</p>
-        <p>Current word: {this.state.wordInPlay}</p>
+        {/* <p>Current word: {this.state.wordInPlay}</p> */}
         <p>{this.state.blanks}</p>
-        <p>Guesses Remaining: {this.state.guessesRemaining}</p>
-        {gameStatus}
+        <p>Guesses Remaining: {guessCount}</p>
+        {/* {gameStatus} */}
       </div>
     );
   }
