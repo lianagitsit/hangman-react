@@ -145,15 +145,7 @@ class Game extends Component {
     if (this.state.didLose){
       winLoseMessage = (<h2>You lose, the word was {this.state.prevWordInPlay}!</h2>);
     } else {
-      winLoseMessage = this.state.didWin && ( <h2>You won with {this.state.prevWordInPlay}!</h2>)
-      //   <div>
-      //     <h2>You won with {this.state.prevWordInPlay}!</h2>
-      //     {/* <audio>
-      //       <source src="glass-clink-2.mp3" type="audio/mpeg"/>
-      //       Your browser does not support audio.
-      //     </audio> */}
-      //   </div>
-      // );
+      winLoseMessage = this.state.didWin && (<h2>You won with {this.state.prevWordInPlay}!</h2>)
     }
 
     var startMessage = !this.state.isGameOn ? (<p className="App-intro">Press any key to get started!</p>) : false;
